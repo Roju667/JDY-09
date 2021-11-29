@@ -9,13 +9,13 @@ configuration comms. In my case its another uart (PC terminal).
 
 Simple ringbuffer is used to take care of saving and realesing messages from uart.
 
-There are 6 pins on JDY-09 :
-EN - not used (i think it is not connected anywhere on JDY-31)
-VCC
-GND
-RXD - recieve from uart 
-TXD - send to uart (initial baud 9600)
-STATE - 1 if external device is connected to bluetooth (LED 1), 0 if there is no connection (LED blinking)
+There are 6 pins on JDY-09 :  
+EN - not used (i think it is not connected anywhere on JDY-31)  
+VCC  
+GND  
+RXD - recieve from uart   
+TXD - send to uart (initial baud 9600)  
+STATE - 1 if external device is connected to bluetooth (LED 1), 0 if there is no connection (LED blinking)  
 
 In future i will add DMA communcation and also will post a project how i use this lib.
 
