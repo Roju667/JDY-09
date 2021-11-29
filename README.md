@@ -1,4 +1,4 @@
-# JDY_09_stm32lib
+# JDY-09 STM32 HAL library
 Library for cheap clone of HC-05 called JDY_09. JDY_31 is the small board placed on the module.
 
 It took me few days to find any documenatation about JDY_09 module so i decided to create this for some future explorers. 
