@@ -17,6 +17,19 @@ RXD - recieve from uart
 TXD - send to uart (initial baud 9600)  
 STATE - 1 if external device is connected to bluetooth (LED 1), 0 if there is no connection (LED blinking)  
 
+Functions :
 
+JDY09_Init() - Assign uart and state pin to JDY09 struct (MCU)  
+JDY09_SendCommand() - Send AT command in offline mode (MCU <-> JDY09)  
+JDY09_SendData() - Send data to external device in online mode (MCU -> JDY09)  
+JDY09_SetBaudRate() - Edit uart baud rate in JDY09 (MCU <-> JDY09)  
+JDY09_SetName() - Edit bluetooth name of JDY09 (MCU <-> JDY09)  
+JDY09_SetPassword() - Edit password to JDY09 (MCU <-> JDY09)  
+JDY09_Disconnect() - Disconnect from online device (MCU <-> JDY09)  
+JDY09_ClearMsgPendingFlag() - Clear flag that is set after msg is received (MCU)  
+JDY09_CheckPendingMessages() - Check if there is message and transfer it from Ringbufer to Msgbuffer (MCU)  
+JDY09_RxCpltCallbackIT() - Callback after receiving 1 char in IT mode (MCU <- JDY09)  
+JDY09_RxCpltCallbackDMA() - Callback after receivng whole msg in DMA mode (MCU <- JDY09)  
+JDY09_EXTICallback() - Callback after State pin change (MCU <- GPIO)  
 
 [jdy31 document.pdf](https://github.com/Roju667/JDY_09_stm32lib/files/7613162/jdy31.document.pdf)
