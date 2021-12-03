@@ -85,9 +85,21 @@ static void JDY09_SendAndDisplayCmd(JDY09_t *jdy09, uint8_t *Command)
 	HAL_UART_Transmit(jdy09->huart, Command, strlen((char*) Command),
 	JDY09_UART_TIMEOUET);
 
+	uint32_t responsetime = HAL_GetTick();
 	//wait for response line
+
+
 	while (jdy09->LinesRecieved == 0)
 	{
+		if (HAL_GetTick() - responsetime < JDY09_UART_TIMEOUET)
+		{
+			// wait until timeout
+		}
+		else
+		{
+			JDY09_DisplayTerminal("No response, UART communication error\n\r");
+			return;
+		}
 	}
 
 	//get message out of ring buffer
