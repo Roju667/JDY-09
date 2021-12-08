@@ -27,7 +27,7 @@ JDY09_SetName() - Edit bluetooth name of JDY09 (MCU <-> JDY09)
 JDY09_SetPassword() - Edit password to JDY09 (MCU <-> JDY09)  
 JDY09_Disconnect() - Disconnect from online device (MCU <-> JDY09)  
 JDY09_ClearMsgPendingFlag() - Clear flag that is set after msg is received (MCU)  
-**JDY09_CheckPendingMessages() - Check if there is message and transfer it from Ringbufer to Msgbuffer (MCU) MAIN FUNCTION TO RECIEVE DATA**
+**JDY09_CheckPendingMessages() - Check if there is message and transfer it from Ringbufer to Msgbuffer (MCU) MAIN FUNCTION TO RECIEVE DATA**  
 JDY09_RxCpltCallbackIT() - Callback after receiving 1 char in IT mode (MCU <- JDY09)  
 JDY09_RxCpltCallbackDMA() - Callback after receivng whole msg in DMA mode (MCU <- JDY09)  
 JDY09_EXTICallback() - Callback after State pin change (MCU <- GPIO)  
