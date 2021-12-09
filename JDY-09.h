@@ -4,6 +4,7 @@
  *  Created on: Nov 24, 2021
  *      Author: ROJEK
  */
+#include "ringbuffer.h"
 
 #ifndef INC_JDY_09_H_
 #define INC_JDY_09_H_

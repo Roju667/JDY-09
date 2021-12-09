@@ -44,9 +44,7 @@
  *
  */
 
-#include "main.h"
 #include "usart.h"
-#include "ringbuffer.h"
 #include "JDY-09.h"
 #include "stdio.h"
 #include "string.h"

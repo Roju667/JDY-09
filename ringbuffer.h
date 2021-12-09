@@ -4,6 +4,7 @@
  *  Created on: Jun 23, 2021
  *      Author: ROJEK
  */
+#include "stdint.h"
 
 #ifndef INC_RINGBUFFER_H_
 #define INC_RINGBUFFER_H_

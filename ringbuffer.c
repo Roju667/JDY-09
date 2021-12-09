@@ -5,10 +5,7 @@
  *      Author: ROJEK
  */
 
-
-#include "main.h"
 #include "ringbuffer.h"
-#include "parse.h"
 
 RB_Status RB_Read(Ringbuffer_t *buffer, uint8_t *value)
 {
