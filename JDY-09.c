@@ -469,11 +469,6 @@ void JDY09_RxCpltCallbackIT(JDY09_t *jdy09, UART_HandleTypeDef *huart)
 		if (jdy09->RecieveBufferIT == JDY09_LASTCHARACTER)
 		{
 			(jdy09->LinesRecieved)++;
-		}else
-		{
-			// if formt of data is not correct print msg and flush RB
-			JDY09_DisplayTerminal("Error, message has to be finished with +LF \n\r");
-			RB_Flush(&(jdy09->RingBuffer));
 		}
 
 		// start another IRQ for single sign
