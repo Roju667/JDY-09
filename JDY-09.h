@@ -41,6 +41,10 @@
 #define JDY09_UART_RX_DMA				1
 #endif
 
+// Define if you want to use STATE pin
+
+#define JDY09_USE_STATE_PIN				0
+
 // Commands to MCU
 typedef enum JDY09{
 	JDY09_CMD_GETVERSION,

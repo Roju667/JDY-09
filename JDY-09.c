@@ -168,9 +168,10 @@ void JDY09_Init(JDY09_t *jdy09, UART_HandleTypeDef *huart,
 	jdy09->huart = huart;
 
 	// Assign GPIO for State pin
+#if (JDY09_USE_STATE_PIN == 1)
 	jdy09->StateGPIOPort = StateGPIOPort;
 	jdy09->StatePinNumber = StateGPIOPin;
-
+#endif
 	// if irq mode is used for receive
 #if (JDY09_UART_RX_IT == 1)
 	HAL_UART_Receive_IT(jdy09->huart, &(jdy09->RecieveBufferIT), 1);
@@ -210,8 +211,12 @@ void JDY09_Init(JDY09_t *jdy09, UART_HandleTypeDef *huart,
 void JDY09_SendCommand(JDY09_t *jdy09, JDY09_CMD Command)
 {
 	// check if there is no connection
+#if (JDY09_USE_STATE_PIN == 1)
 	if (HAL_GPIO_ReadPin(jdy09->StateGPIOPort, jdy09->StatePinNumber)
 			== GPIO_PIN_RESET)
+#else
+	if (1)
+#endif
 	{
 		switch (Command)
 		{
@@ -261,9 +266,13 @@ void JDY09_SendCommand(JDY09_t *jdy09, JDY09_CMD Command)
  */
 void JDY09_SendData(JDY09_t *jdy09, uint8_t *Data)
 {
-	// check if there is a connection
+	// check if there is no connection
+#if (JDY09_USE_STATE_PIN == 1)
 	if (HAL_GPIO_ReadPin(jdy09->StateGPIOPort, jdy09->StatePinNumber)
-			== GPIO_PIN_SET)
+			== GPIO_PIN_RESET)
+#else
+	if (1)
+#endif
 	{
 		// send array of bytes to external device
 		HAL_UART_Transmit(jdy09->huart, Data, strlen((char*) Data),
@@ -288,9 +297,13 @@ void JDY09_SendData(JDY09_t *jdy09, uint8_t *Data)
  */
 void JDY09_Disconnect(JDY09_t *jdy09)
 {
-	//check connection
+	// check if there is connection
+#if (JDY09_USE_STATE_PIN == 1)
 	if (HAL_GPIO_ReadPin(jdy09->StateGPIOPort, jdy09->StatePinNumber)
 			== GPIO_PIN_SET)
+#else
+	if (1)
+#endif
 	{
 		// disconnect
 		JDY09_SendAndDisplayCmd(jdy09, (uint8_t*) "AT+DISC\r\n");
@@ -312,11 +325,14 @@ void JDY09_Disconnect(JDY09_t *jdy09)
  */
 void JDY09_SetBaudRate(JDY09_t *jdy09, uint8_t Baudrate)
 {
-	//check if there is no connection
+	// check if there is no connection
+#if (JDY09_USE_STATE_PIN == 1)
 	if (HAL_GPIO_ReadPin(jdy09->StateGPIOPort, jdy09->StatePinNumber)
 			== GPIO_PIN_RESET)
+#else
+	if (1)
+#endif
 	{
-
 		//send new baudrate
 		uint8_t Msg[16];
 		sprintf((char*) Msg, "AT+BAUD%d\r\n", Baudrate);
@@ -347,9 +363,13 @@ void JDY09_SetName(JDY09_t *jdy09, uint8_t *Name)
 		return;
 	}
 
-	// check if there is no active connection
+	// check if there is no connection
+#if (JDY09_USE_STATE_PIN == 1)
 	if (HAL_GPIO_ReadPin(jdy09->StateGPIOPort, jdy09->StatePinNumber)
 			== GPIO_PIN_RESET)
+#else
+	if (1)
+#endif
 	{
 		uint8_t Msg[32];
 		sprintf((char*) Msg, "AT+NAME%s\r\n", Name);
@@ -379,9 +399,13 @@ void JDY09_SetPassword(JDY09_t *jdy09, uint8_t *Password)
 		return;
 	}
 
-	// check if there is no active connection
+	// check if there is no connection
+#if (JDY09_USE_STATE_PIN == 1)
 	if (HAL_GPIO_ReadPin(jdy09->StateGPIOPort, jdy09->StatePinNumber)
 			== GPIO_PIN_RESET)
+#else
+	if (1)
+#endif
 	{
 		uint8_t Msg[32];
 		sprintf((char*) Msg, "AT+PIN%s\r\n", Password);
@@ -528,8 +552,9 @@ void JDY09_RxCpltCallbackDMA(JDY09_t *jdy09, UART_HandleTypeDef *huart,
 		__HAL_DMA_DISABLE_IT(jdy09->huart->hdmarx, DMA_IT_HT);
 	}
 }
-#endif
+#endif // (JDY09_UART_RX_DMA == 1)
 
+#if(JDY09_USE_STATE_PIN == 1)
 /*
  * Callback to put in HAL_GPIO_EXTI_Callback
  *
@@ -558,3 +583,5 @@ void JDY09_EXTICallback(JDY09_t *jdy09, uint16_t GPIO_Pin)
 		RB_Flush(&(jdy09->RingBuffer));
 	}
 }
+
+#endif // (JDY09_USE_STATE_PIN == 1)
