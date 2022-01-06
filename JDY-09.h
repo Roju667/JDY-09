@@ -11,6 +11,9 @@
 
 // To define by user, all characters until this character will be transfered to buffer
 #define JDY09_LASTCHARACTER				'\n'
+#define JDY09_TESTRUN					0
+#define JDY09_DMA_CONTINUOUSSTART		1
+#define JDY09_IRQ_CONTINUOUSSTART		0
 
 #define JDY09_MAX_CMD_LENGHT			32
 #define JDY09_UART_TIMEOUET				1000
@@ -24,7 +27,7 @@
 #define JDY09_BAUDRATE_128000 			9
 
 // Maximum message size
-#define JDY09_RECIEVEBUFFERSIZE			64
+#define JDY09_RECIEVEBUFFERSIZE			32
 
 // Message pending
 #define JDY09_NOMESSAGE					0
@@ -35,7 +38,7 @@
 #define JDY09_MAX_PIN_LENGHT			4
 
 // Define RX - IT/DMA
-#define JDY09_UART_RX_IT				0
+#define JDY09_UART_RX_IT				1
 
 #if (JDY09_UART_RX_IT == 0)
 #define JDY09_UART_RX_DMA				1
@@ -78,7 +81,11 @@ typedef struct JDY09_t
 }JDY09_t;
 
 
-void JDY09_Init(JDY09_t *jdy09, UART_HandleTypeDef *huart, GPIO_TypeDef *StateGPIOPort, uint16_t StateGPIOPin);
+void JDY09_Init(JDY09_t *jdy09, UART_HandleTypeDef *huart
+#if (JDY09_USE_STATE_PIN == 1)
+		, GPIO_TypeDef *StateGPIOPort, uint16_t StateGPIOPin
+#endif
+		);
 void JDY09_SendCommand(JDY09_t* jdy09, JDY09_CMD Command);
 void JDY09_SendData(JDY09_t *jdy09, uint8_t* Data);
 void JDY09_SetBaudRate(JDY09_t* jdy09,uint8_t Baudrate);
@@ -88,9 +95,11 @@ void JDY09_Disconnect(JDY09_t *jdy09);
 void JDY09_ClearMsgPendingFlag(JDY09_t* jdy09);
 uint8_t JDY09_CheckPendingMessages(JDY09_t* jdy09,uint8_t* MsgBuffer);
 #if (JDY09_UART_RX_IT == 1)
+void JDY09_StartNewIRQRx(JDY09_t *jdy09);
 void JDY09_RxCpltCallbackIT(JDY09_t *jdy09, UART_HandleTypeDef *huart);
 #endif
 #if (JDY09_UART_RX_DMA == 1)
+void JDY09_StartNewDMARx(JDY09_t *jdy09);
 void JDY09_RxCpltCallbackDMA(JDY09_t *jdy09, UART_HandleTypeDef *huart,uint16_t size);
 #endif
 void JDY09_EXTICallback(JDY09_t *jdy09, uint16_t GPIO_Pin);

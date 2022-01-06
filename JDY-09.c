@@ -49,6 +49,36 @@
 #include "stdio.h"
 #include "string.h"
 
+#if (JDY09_UART_RX_DMA == 1)
+/*
+ * Start recieving in DMA Mode
+ *
+ * @param[*jdy09] - pointer to struct for JDY09 bluetooth module
+ * @return - void
+ */
+void JDY09_StartNewDMARx(JDY09_t *jdy09)
+{
+	// start another DMA recieve
+	HAL_UARTEx_ReceiveToIdle_DMA(jdy09->huart, jdy09->RecieveBufferDMA,
+	JDY09_RECIEVEBUFFERSIZE);
+	// to avoid callback from half message this has be disabled
+	__HAL_DMA_DISABLE_IT(jdy09->huart->hdmarx, DMA_IT_HT);
+}
+#endif
+
+#if (JDY09_UART_RX_IT == 1)
+/*
+ * Start recieving in IRQ Mode
+ *
+ * @param[*jdy09] - pointer to struct for JDY09 bluetooth module
+ * @return - void
+ */
+void JDY09_StartNewIRQRx(JDY09_t *jdy09)
+{
+	// start another IRQ for single sign
+	HAL_UART_Receive_IT(jdy09->huart, &(jdy09->RecieveBufferIT), 1);
+}
+#endif
 /*
  * Terminal defined by user, commands sent in offline mode will be displayed
  * with responses from JDY-09
@@ -60,8 +90,7 @@
 
 static void JDY09_DisplayTerminal(char *Msg)
 {
-	uint8_t Lenght = strlen(Msg);
-	HAL_UART_Transmit(&huart2, (uint8_t*) Msg, Lenght, JDY09_UART_TIMEOUET);
+
 }
 
 /*
@@ -154,8 +183,11 @@ static uint32_t JDY09_GetBaud(uint8_t Baudrate)
  *
  * @return - void
  */
-void JDY09_Init(JDY09_t *jdy09, UART_HandleTypeDef *huart,
-		GPIO_TypeDef *StateGPIOPort, uint16_t StateGPIOPin)
+void JDY09_Init(JDY09_t *jdy09, UART_HandleTypeDef *huart
+#if (JDY09_USE_STATE_PIN == 1)
+		,GPIO_TypeDef *StateGPIOPort, uint16_t StateGPIOPin
+#endif
+		)
 {
 
 	// init msg
@@ -174,30 +206,28 @@ void JDY09_Init(JDY09_t *jdy09, UART_HandleTypeDef *huart,
 #endif
 	// if irq mode is used for receive
 #if (JDY09_UART_RX_IT == 1)
-	HAL_UART_Receive_IT(jdy09->huart, &(jdy09->RecieveBufferIT), 1);
+	JDY09_StartNewIRQRx(jdy09);
 #endif
 
 	// if dma mode is used for receive
 #if (JDY09_UART_RX_DMA == 1)
-	HAL_UARTEx_ReceiveToIdle_DMA(jdy09->huart, jdy09->RecieveBufferDMA,
-	JDY09_RECIEVEBUFFERSIZE);
-	// to avoid callback from half message this has be disabled
-	__HAL_DMA_DISABLE_IT(jdy09->huart->hdmarx, DMA_IT_HT);
+	JDY09_StartNewDMARx(jdy09);
 #endif
+
+
+#if (JDY09_TESTRUN == 1)
 
 	// small delay before transmission
 	HAL_Delay(100);
 
-	//during init - disconnect and display basic information
 	JDY09_Disconnect(jdy09);
 
-	//for some reason this msg will not work in DMA recieve mode
-	//solution yet to find
 	JDY09_SendCommand(jdy09, JDY09_CMD_GETVERSION);
 	JDY09_SendCommand(jdy09, JDY09_CMD_GETADRESS);
 	JDY09_SendCommand(jdy09, JDY09_CMD_GETBAUDRATE);
 	JDY09_SendCommand(jdy09, JDY09_CMD_GETNAME);
 	JDY09_SendCommand(jdy09, JDY09_CMD_GETPASSWORD);
+#endif
 }
 
 /*
@@ -493,10 +523,15 @@ void JDY09_RxCpltCallbackIT(JDY09_t *jdy09, UART_HandleTypeDef *huart)
 		if (jdy09->RecieveBufferIT == JDY09_LASTCHARACTER)
 		{
 			(jdy09->LinesRecieved)++;
-		}
 
+			// if user wants to start irq in this momemnt
+#if(JDY09_IRQ_CONTINUOUSSTART == 1)
+			JDY09_StartNewIRQRx(jdy09);
+#endif
+			return;
+		}
 		// start another IRQ for single sign
-		HAL_UART_Receive_IT(jdy09->huart, &(jdy09->RecieveBufferIT), 1);
+		JDY09_StartNewIRQRx(jdy09);
 	}
 }
 #endif
@@ -545,11 +580,9 @@ void JDY09_RxCpltCallbackDMA(JDY09_t *jdy09, UART_HandleTypeDef *huart,
 		// add new lines
 		jdy09->LinesRecieved = +newlines;
 
-		// start another IRQ for single sign
-		HAL_UARTEx_ReceiveToIdle_DMA(jdy09->huart, jdy09->RecieveBufferDMA,
-		JDY09_RECIEVEBUFFERSIZE);
-		// to avoid callback from half message this has be disabled
-		__HAL_DMA_DISABLE_IT(jdy09->huart->hdmarx, DMA_IT_HT);
+#if (JDY09_DMA_CONTINUOUSSTART == 1)
+		JDY09_StartNewDMAIRQ(jdy09);
+#endif
 	}
 }
 #endif // (JDY09_UART_RX_DMA == 1)
